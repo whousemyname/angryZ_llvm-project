@@ -15,6 +15,18 @@
 #   define TARGET_BUILTIN(ID, TYPE, ATTRS, FEATURE) BUILTIN(ID, TYPE, ATTRS)
 #endif
 
+//P扩展的支持
+//BUILTIN(__builtin_riscv_aml_test, "Liiii", "nc", "zbc,32bit") error: builtin requires at least one of the following extensions to be enabled: 'Zbc'
+//TARGET_BUILTIN(__rv_add16, "ULiULiULi", "nc", "experimental-zpn")
+//2023-07-23
+//P/Zpn
+// add8
+TARGET_BUILTIN(__rv_add8, "ULiULiULi", "nc", "zpn")
+TARGET_BUILTIN(__rv_add16, "ULiULiULi", "nc", "zpn")
+
+
+TARGET_BUILTIN(__rv_kaddw, "ULiULiULi", "nc", "zpn,32bit")
+TARGET_BUILTIN(__rv_ksubw, "ULiULiULi", "nc", "p,32bit")
 // Zbb extension
 TARGET_BUILTIN(__builtin_riscv_orc_b_32, "UiUi", "nc", "zbb")
 TARGET_BUILTIN(__builtin_riscv_orc_b_64, "UWiUWi", "nc", "zbb,64bit")

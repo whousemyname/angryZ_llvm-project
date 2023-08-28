@@ -1949,6 +1949,8 @@ def : Pat<(binop_allwusers<add> GPR:$rs1, (AddiPair:$rs2)),
 // Standard extensions
 //===----------------------------------------------------------------------===//
 
+include "RISCVInstrInfoP.td"
+
 // Multiply and Division
 include "RISCVInstrInfoM.td"
 

@@ -841,6 +841,27 @@ public:
                        VK == RISCVMCExpr::VK_RISCV_TPREL_LO);
   }
 
+/*
+  * 这段代码的作用是什么还不确定
+  * 即使注释掉这段代码，也仍然不会造成影响？
+*/
+  bool isSImm8() const {
+    RISCVMCExpr::VariantKind VK = RISCVMCExpr::VK_RISCV_None;
+    int64_t Imm;
+    bool IsValid;
+    if (!isImm())
+      return false;
+    bool IsConstantImm = evaluateConstantImm(getImm(), Imm, VK);
+    if (!IsConstantImm)
+      IsValid = RISCVAsmParser::classifySymbolRef(getImm(), VK);
+    else
+      IsValid = isInt<8>(fixImmediateForRV32(Imm, isRV64Imm()));
+    return IsValid && ((IsConstantImm && VK == RISCVMCExpr::VK_RISCV_None) ||
+                       VK == RISCVMCExpr::VK_RISCV_LO ||
+                       VK == RISCVMCExpr::VK_RISCV_PCREL_LO ||
+                       VK == RISCVMCExpr::VK_RISCV_TPREL_LO);
+  }
+
   bool isSImm12Lsb0() const { return isBareSimmNLsb0<12>(); }
 
   bool isSImm12Lsb00000() const {

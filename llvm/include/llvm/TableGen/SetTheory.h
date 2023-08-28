@@ -62,7 +62,7 @@ class DagInit;
 class Init;
 class Record;
 
-class SetTheory {
+class SetTheory {   //工作在DAG上的operators集合的定义
 public:
   using RecVec = std::vector<Record *>;
   using RecSet = SmallSetVector<Record *, 16>;

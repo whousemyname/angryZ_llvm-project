@@ -10,6 +10,26 @@
 // RISC-V subtarget features and instruction predicates.
 //===----------------------------------------------------------------------===//
 
+//===----------------------------------------------------------------------===//
+// tao P扩展Feature的添加
+//===----------------------------------------------------------------------===//
+//TODO
+def FeatureStdExtZpn
+    : SubtargetFeature<"zpn", "HasStdExtZpn", "true",
+                       "'Zpn' (Normal 'P' Instructions)">;
+def HasStdExtZpn : Predicate<"Subtarget->hasStdExtZpn()">,
+                             AssemblerPredicate<(all_of FeatureStdExtZpn),
+                         "'Zpn' (Normal 'P' Instructions)">;
+def FeatureStdExtP
+    : SubtargetFeature<"p", "HasStdExtP", "true",
+                       "'P' (Packed-SIMD Instructions)",
+                       [FeatureStdExtZpn]>;
+def HasStdExtP : Predicate<"Subtarget->hasStdExtP()">,
+                           AssemblerPredicate<(all_of FeatureStdExtP),
+                           "'P' (Packed-SIMD Instructions)">;
+
+
+
 def FeatureStdExtZicsr
     : SubtargetFeature<"zicsr", "HasStdExtZicsr", "true",
                        "'zicsr' (CSRs)">;

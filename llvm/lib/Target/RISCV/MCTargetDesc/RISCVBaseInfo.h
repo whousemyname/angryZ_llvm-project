@@ -51,6 +51,7 @@ enum {
   InstFormatCSB = 20,
   InstFormatCSH = 21,
   InstFormatOther = 22,
+  InstFormatCustom = 23,
 
   InstFormatMask = 31,
   InstFormatShift = 0,
@@ -290,6 +291,7 @@ enum OperandType : unsigned {
   OPERAND_SIMM6_NONZERO,
   OPERAND_SIMM10_LSB0000_NONZERO,
   OPERAND_SIMM12,
+  OPERAND_SIMM8,
   OPERAND_SIMM12_LSB00000,
   OPERAND_UIMM20,
   OPERAND_UIMMLOG2XLEN,

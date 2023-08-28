@@ -20400,6 +20400,28 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
 
     return Store;
   }
+#define BUILTIN_ID(NAME)            \
+  case RISCV::BI__rv_##NAME:        \
+    ID = Intrinsic::riscv_##NAME;   \
+    break;
+
+// Intrinsic type is obtained from Ops[0].
+    case RISCV::BI__rv_add8:
+    case RISCV::BI__rv_add16:
+    case RISCV::BI__rv_ksubw:
+    case RISCV::BI__rv_kaddw: {
+      switch (BuiltinID) {
+        default : llvm_unreachable("unexpected builtin ID");
+        BUILTIN_ID(add8)
+        BUILTIN_ID(add16)
+        BUILTIN_ID(kaddw)
+        BUILTIN_ID(ksubw)
+      }
+#undef BUILTIN_ID
+      IntrinsicTypes = {Ops[0]->getType()};
+      break;
+    }
+
 
   // Vector builtins are handled from here.
 #include "clang/Basic/riscv_vector_builtin_cg.inc"

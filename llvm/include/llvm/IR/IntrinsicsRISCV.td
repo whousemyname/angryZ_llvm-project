@@ -23,6 +23,37 @@
 // suffixed with the pointer type they are specialised for (denoted `<p>` in the
 // names below), in order to avoid type conflicts.
 
+def int_riscv_aml_test
+  : DefaultAttrsIntrinsic<[llvm_i32_ty],
+                          [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty],
+                          [IntrNoMem, IntrSpeculatable]>, 
+    ClangBuiltin<"__builtin_riscv_aml_test">;
+
+let TargetPrefix = "riscv" in {
+  def int_riscv_tao_test
+      : DefaultAttrsIntrinsic<[llvm_i32_ty],
+                              [llvm_i32_ty, llvm_i32_ty, llvm_i32_ty],
+                              [IntrNoMem, IntrSpeculatable]>;
+}
+
+//P/Zpn
+let TargetPrefix = "riscv" in {
+	class RVPBinaryIntrinsics
+		  : Intrinsic<[llvm_any_ty],
+					  [LLVMMatchType<0>, LLVMMatchType<0>],
+					  [IntrNoMem]>;
+
+	multiclass RVPBinaryIntrinsics {
+		def "int_riscv_" # NAME : RVPBinaryIntrinsics;
+	}
+
+	defm add8     : RVPBinaryIntrinsics;
+	defm add16    : RVPBinaryIntrinsics;
+  defm kaddw    : RVPBinaryIntrinsics;
+  defm ksubw    : RVPBinaryIntrinsics;
+}
+
+
 let TargetPrefix = "riscv" in {
 
   // T @llvm.<name>.T.<p>(any*, T, T, T imm);

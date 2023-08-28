@@ -276,7 +276,8 @@ RISCVTargetLowering::RISCVTargetLowering(const TargetMachine &TM,
   }
 
   if (!Subtarget.hasStdExtM() && !Subtarget.hasStdExtZmmul())
-    setOperationAction({ISD::MUL, ISD::MULHS, ISD::MULHU}, XLenVT, Expand);
+    //setOperationAction({ISD::MUL, ISD::MULHS, ISD::MULHU}, XLenVT, Expand);
+  setOperationAction({ISD::MULHS, ISD::MULHU}, XLenVT, Expand);
   else if (Subtarget.is64Bit())
     setOperationAction(ISD::MUL, {MVT::i32, MVT::i128}, Custom);
   else

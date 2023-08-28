@@ -320,6 +320,23 @@ void RISCVInstrInfo::copyPhysReg(MachineBasicBlock &MBB,
     return;
   }
 
+    //GPR = copy HPR  addiGH
+  
+  if (RISCV::GPRRegClass.contains(DstReg) && RISCV::HPRRegClass.contains(SrcReg)) {
+    BuildMI(MBB, MBBI, DL, get(RISCV::ADDIGH), DstReg)
+        .addReg(SrcReg, getKillRegState(KillSrc))
+        .addImm(0);
+    return;
+  }
+  //HPR = copy GPR  addiHG
+  if (RISCV::GPRRegClass.contains(SrcReg) && RISCV::HPRRegClass.contains(DstReg)) {
+    BuildMI(MBB, MBBI, DL, get(RISCV::ADDIHG), DstReg)
+        .addReg(SrcReg, getKillRegState(KillSrc))
+        .addImm(0);
+    return;
+  }
+
+
   // FPR->FPR copies and VR->VR copies.
   unsigned Opc;
   bool IsScalableVector = true;
@@ -1790,6 +1807,9 @@ bool RISCVInstrInfo::verifyInstruction(const MachineInstr &MI,
           break;
         case RISCVOp::OPERAND_SIMM12:
           Ok = isInt<12>(Imm);
+          break;
+        case RISCVOp::OPERAND_SIMM8:
+          Ok = isInt<8>(Imm);
           break;
         case RISCVOp::OPERAND_SIMM12_LSB00000:
           Ok = isShiftedInt<7, 5>(Imm);

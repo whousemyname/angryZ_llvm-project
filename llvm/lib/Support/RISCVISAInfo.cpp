@@ -58,7 +58,7 @@ static const RISCVSupportedExtension SupportedExtensions[] = {
     {"h", RISCVExtensionVersion{1, 0}},
     {"i", RISCVExtensionVersion{2, 1}},
     {"m", RISCVExtensionVersion{2, 0}},
-
+    {"p", RISCVExtensionVersion{1, 0}},
     {"svinval", RISCVExtensionVersion{1, 0}},
     {"svnapot", RISCVExtensionVersion{1, 0}},
     {"svpbmt", RISCVExtensionVersion{1, 0}},
@@ -135,7 +135,7 @@ static const RISCVSupportedExtension SupportedExtensions[] = {
     {"zkt", RISCVExtensionVersion{1, 0}},
 
     {"zmmul", RISCVExtensionVersion{1, 0}},
-
+    {"zpn", RISCVExtensionVersion{1, 0}},
     {"zve32f", RISCVExtensionVersion{1, 0}},
     {"zve32x", RISCVExtensionVersion{1, 0}},
     {"zve64d", RISCVExtensionVersion{1, 0}},
@@ -951,6 +951,7 @@ Error RISCVISAInfo::checkDependency() {
   return Error::success();
 }
 
+static const char *ImpliedExtsP[] = {"p", "zpn"};
 static const char *ImpliedExtsD[] = {"f"};
 static const char *ImpliedExtsF[] = {"zicsr"};
 static const char *ImpliedExtsV[] = {"zvl128b", "zve64d"};
@@ -1021,6 +1022,7 @@ struct ImpliedExtsEntry {
 static constexpr ImpliedExtsEntry ImpliedExts[] = {
     {{"d"}, {ImpliedExtsD}},
     {{"f"}, {ImpliedExtsF}},
+    {{"p"}, {ImpliedExtsP}},
     {{"v"}, {ImpliedExtsV}},
     {{"xsfvcp"}, {ImpliedExtsXsfvcp}},
     {{"xtheadvdot"}, {ImpliedExtsXTHeadVdot}},

@@ -48,6 +48,27 @@ class RISCVReg64<RISCVReg32 subreg>
 let FallbackRegAltNameIndex = NoRegAltName in
 def ABIRegAltName : RegAltNameIndex;
 
+let Namespace = "RISCV" in {
+  //寄存器类型
+  class RISCVReg128<bits<7> Enc, string n, list<string> alt = []> : Register<n> {
+    let HWEncoding{6-0} = Enc;
+    let AltNames = alt;
+  }
+}
+//定义寄存器
+//DwarfRegNum,debug使用的寄存器编号，gdb使用的寄存器编号与llvm寄存器枚举值建立 map
+let RegAltNameIndices = [ABIRegAltName] in {
+  foreach Index = 0-127 in {
+    def H#Index# : RISCVReg128<Index, "h"#Index, ["h"#Index]>, DwarfRegNum<[!add(Index, 64)]>;
+  }
+} 
+//定义寄存器类
+def HPR : RegisterClass<"RISCV", [i32], 128, 
+  (add (sequence "H%u", 0, 16), 
+        H127
+  )
+>;
+
 def sub_vrm4_0 : SubRegIndex<256>;
 def sub_vrm4_1 : SubRegIndex<256, 256>;
 def sub_vrm2_0 : SubRegIndex<128>;
