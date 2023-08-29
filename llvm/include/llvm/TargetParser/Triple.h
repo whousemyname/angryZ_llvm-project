@@ -41,7 +41,7 @@ namespace llvm {
 ///
 /// See autoconf/config.guess for a glimpse into what configuration names
 /// look like in practice.
-class Triple {
+class Triple {    //debug_b
 public:
   enum ArchType {
     UnknownArch,

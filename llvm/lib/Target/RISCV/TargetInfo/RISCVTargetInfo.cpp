@@ -20,6 +20,12 @@ Target &llvm::getTheRISCV64Target() {
   return TheRISCV64Target;
 }
 
+
+/*
+  * LLVM_EXTERNAL_VISIBILITY宏。定义在angryZ_llvm-project/llvm/include/llvm/Support/Compiler.h
+  * 共享库外部可见
+  * LLVM_LIBRARY_VISIBILITY 外部不可见，库可见，也就是库私有
+*/
 extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeRISCVTargetInfo() {
   RegisterTarget<Triple::riscv32, /*HasJIT=*/true> X(
       getTheRISCV32Target(), "riscv32", "32-bit RISC-V", "RISCV");

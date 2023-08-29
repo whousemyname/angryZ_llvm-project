@@ -1,0 +1,11 @@
+#ifndef LLVM_LIB_TARGET_ANGRYZ_MCTARGETDESC_ANGRYZMCTARGETDESC_H
+#define LLVM_LIB_TARGET_ANGRYZ_MCTARGETDESC_ANGRYZMCTARGETDESC_H
+
+namespace llvm {
+
+
+
+}   // namespace llvm
+
+
+#endif

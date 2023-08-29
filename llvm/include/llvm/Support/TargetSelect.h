@@ -63,7 +63,7 @@ namespace llvm {
   /// support, to make them available via the TargetRegistry.
   ///
   /// It is legal for a client to make multiple calls to this function.
-  inline void InitializeAllTargets() {
+  inline void InitializeAllTargets() {    //debug_b
     // FIXME: Remove this, clients should do it.
     InitializeAllTargetInfos();
 
@@ -76,7 +76,7 @@ namespace llvm {
   /// support, to make them available via the TargetRegistry.
   ///
   /// It is legal for a client to make multiple calls to this function.
-  inline void InitializeAllTargetMCs() {
+  inline void InitializeAllTargetMCs() {      //debug_b
 #define LLVM_TARGET(TargetName) LLVMInitialize##TargetName##TargetMC();
 #include "llvm/Config/Targets.def"
   }
