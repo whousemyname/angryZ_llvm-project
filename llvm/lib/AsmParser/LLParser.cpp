@@ -354,7 +354,7 @@ bool LLParser::parseTargetDefinitions(DataLayoutCallbackTy DataLayoutCallback) {
   // Run the override callback to potentially change the data layout string, and
   // parse the data layout string.
   if (auto LayoutOverride =
-          DataLayoutCallback(M->getTargetTriple(), TentativeDLStr)) {
+          DataLayoutCallback(M->getTargetTriple(), TentativeDLStr)) {   //debug_b   setDataLayout callback有关
     TentativeDLStr = *LayoutOverride;
     DLStrLoc = {};
   }
@@ -467,7 +467,7 @@ bool LLParser::parseModuleAsm() {
 ///   ::= 'target' 'triple' '=' STRINGCONSTANT
 ///   ::= 'target' 'datalayout' '=' STRINGCONSTANT
 bool LLParser::parseTargetDefinition(std::string &TentativeDLStr,
-                                     LocTy &DLStrLoc) {
+                                     LocTy &DLStrLoc) {   //debug_b 这里主要是解析ll文件中
   assert(Lex.getKind() == lltok::kw_target);
   std::string Str;
   switch (Lex.Lex()) {
@@ -478,7 +478,7 @@ bool LLParser::parseTargetDefinition(std::string &TentativeDLStr,
     if (parseToken(lltok::equal, "expected '=' after target triple") ||
         parseStringConstant(Str))
       return true;
-    M->setTargetTriple(Str);
+    M->setTargetTriple(Str);      //debug_b
     return false;
   case lltok::kw_datalayout:
     Lex.Lex();

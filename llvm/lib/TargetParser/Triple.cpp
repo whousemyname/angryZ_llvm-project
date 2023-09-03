@@ -24,6 +24,7 @@ StringRef Triple::getArchTypeName(ArchType Kind) {
   switch (Kind) {
   case UnknownArch:    return "unknown";
 
+  case angryz:         return "angryz"; 
   case aarch64:        return "aarch64";
   case aarch64_32:     return "aarch64_32";
   case aarch64_be:     return "aarch64_be";
@@ -94,6 +95,8 @@ StringRef Triple::getArchTypePrefix(ArchType Kind) {
   default:
     return StringRef();
 
+  case angryz:
+                    return "angryz";
   case aarch64:
   case aarch64_be:
   case aarch64_32:  return "aarch64";
@@ -327,6 +330,7 @@ static Triple::ArchType parseBPFArch(StringRef ArchName) {
 Triple::ArchType Triple::getArchTypeForLLVMName(StringRef Name) {
   Triple::ArchType BPFArch(parseBPFArch(Name));
   return StringSwitch<Triple::ArchType>(Name)
+    .Case("angryz", angryz)
     .Case("aarch64", aarch64)
     .Case("aarch64_be", aarch64_be)
     .Case("aarch64_32", aarch64_32)
@@ -462,6 +466,7 @@ static Triple::ArchType parseARMArch(StringRef ArchName) {
 
 static Triple::ArchType parseArch(StringRef ArchName) {
   auto AT = StringSwitch<Triple::ArchType>(ArchName)
+    .Case("angryz", Triple::angryz )
     .Cases("i386", "i486", "i586", "i686", Triple::x86)
     // FIXME: Do we need to support these?
     .Cases("i786", "i886", "i986", Triple::x86)
@@ -844,6 +849,7 @@ static Triple::ObjectFormatType getDefaultFormat(const Triple &T) {
   case Triple::ve:
   case Triple::xcore:
   case Triple::xtensa:
+  case Triple::angryz:
     return Triple::ELF;
 
   case Triple::ppc64:
@@ -1425,6 +1431,7 @@ static unsigned getArchPointerBitWidth(llvm::Triple::ArchType Arch) {
   case llvm::Triple::x86:
   case llvm::Triple::xcore:
   case llvm::Triple::xtensa:
+  case llvm::Triple::angryz:
     return 32;
 
   case llvm::Triple::aarch64:
@@ -1516,6 +1523,7 @@ Triple Triple::get32BitArchVariant() const {
   case Triple::x86:
   case Triple::xcore:
   case Triple::xtensa:
+  case Triple::angryz:
     // Already 32-bit.
     break;
 
@@ -1596,6 +1604,7 @@ Triple Triple::get64BitArchVariant() const {
     // Already 64-bit.
     break;
 
+  case Triple::angryz:          T.setArch(Triple::angryz);     break;
   case Triple::aarch64_32:      T.setArch(Triple::aarch64);    break;
   case Triple::amdil:           T.setArch(Triple::amdil64);    break;
   case Triple::arm:             T.setArch(Triple::aarch64);    break;
@@ -1713,6 +1722,7 @@ Triple Triple::getLittleEndianArchVariant() const {
     T.setArch(UnknownArch);
     break;
 
+  case Triple::angryz:     T.setArch(angryz); break;//debubg_b 无意义代码
   case Triple::aarch64_be: T.setArch(Triple::aarch64);  break;
   case Triple::bpfeb:      T.setArch(Triple::bpfel);    break;
   case Triple::mips64:
@@ -1778,6 +1788,7 @@ bool Triple::isLittleEndian() const {
   case Triple::x86_64:
   case Triple::xcore:
   case Triple::xtensa:
+  case Triple::angryz:
     return true;
   default:
     return false;

@@ -298,7 +298,7 @@ public:
   void setDataLayout(const DataLayout &Other);
 
   /// Set the target triple.
-  void setTargetTriple(StringRef T) { TargetTriple = std::string(T); }
+  void setTargetTriple(StringRef T) { TargetTriple = std::string(T); }    //debug_b 通过读取ll文件中的target triple来设置module的TargetTriple
 
   /// Set the module-scope inline assembly blocks.
   /// A trailing newline is added if the input doesn't have one.

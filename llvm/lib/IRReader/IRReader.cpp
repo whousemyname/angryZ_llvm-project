@@ -93,7 +93,7 @@ std::unique_ptr<Module> llvm::parseIR(MemoryBufferRef Buffer, SMDiagnostic &Err,
 
 std::unique_ptr<Module> llvm::parseIRFile(StringRef Filename, SMDiagnostic &Err,
                                           LLVMContext &Context,
-                                          ParserCallbacks Callbacks) {
+                                          ParserCallbacks Callbacks) {      // debug_b
   ErrorOr<std::unique_ptr<MemoryBuffer>> FileOrErr =
       MemoryBuffer::getFileOrSTDIN(Filename, /*IsText=*/true);
   if (std::error_code EC = FileOrErr.getError()) {

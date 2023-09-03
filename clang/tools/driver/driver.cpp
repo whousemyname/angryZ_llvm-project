@@ -347,7 +347,7 @@ static void SetInstallDir(SmallVectorImpl<const char *> &argv,
 }
 
 static int ExecuteCC1Tool(SmallVectorImpl<const char *> &ArgV,
-                          const llvm::ToolContext &ToolContext) {
+                          const llvm::ToolContext &ToolContext) {   // debug_b
   // If we call the cc1 tool from the clangDriver library (through
   // Driver::CC1Main), we need to clean up the options usage count. The options
   // are currently global, and they might have been used previously by the
@@ -375,7 +375,7 @@ static int ExecuteCC1Tool(SmallVectorImpl<const char *> &ArgV,
   return 1;
 }
 
-int clang_main(int Argc, char **Argv, const llvm::ToolContext &ToolContext) {
+int clang_main(int Argc, char **Argv, const llvm::ToolContext &ToolContext) { 
   noteBottomOfStack();
   llvm::InitLLVM X(Argc, Argv);
   llvm::setBugReportMsg("PLEASE submit a bug report to " BUG_REPORT_URL

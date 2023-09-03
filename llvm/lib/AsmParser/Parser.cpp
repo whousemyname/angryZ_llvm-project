@@ -49,7 +49,7 @@ llvm::parseAssembly(MemoryBufferRef F, SMDiagnostic &Err, LLVMContext &Context,
   std::unique_ptr<Module> M =
       std::make_unique<Module>(F.getBufferIdentifier(), Context);
 
-  if (parseAssemblyInto(F, M.get(), nullptr, Err, Slots, DataLayoutCallback))
+  if (parseAssemblyInto(F, M.get(), nullptr, Err, Slots, DataLayoutCallback))   //debug_b
     return nullptr;
 
   return M;

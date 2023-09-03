@@ -540,17 +540,34 @@ static int compileModule(char **argv, LLVMContext &Context) {
 
   // If user just wants to list available options, skip module loading
   if (!SkipModule) {
+    /*
+      * 首先定义lambda：重新设置Datalayout，之后判断输入文件类型，之后调用相应的解析函数进行解析
+      * 如果是mir --》 parseIRModule
+      * 如果是ll等ir文件，调用parseIRFile
+    */
     auto SetDataLayout = [&](StringRef DataLayoutTargetTriple,
                              StringRef OldDLStr) -> std::optional<std::string> {
       // If we are supposed to override the target triple, do so now.
       std::string IRTargetTriple = DataLayoutTargetTriple.str();
-      if (!TargetTriple.empty())
+      /*
+        //这是非常核心的判断：
+        DataLayoutTargetTriple是在ll中指定的TargetTriple，经过LLParser解析设置到了Module.TargetTriple
+        TargetTriple : 这个string是命令行指定mtriple指定
+        如果TargetTriple不为空也就是命令行指定了mtriple，那么就会覆盖ll中的信息TargetTriple，也就是clang编译时指定的triple信息
+      */
+      if (!TargetTriple.empty())    
         IRTargetTriple = Triple::normalize(TargetTriple);
       TheTriple = Triple(IRTargetTriple);
       if (TheTriple.getTriple().empty())
         TheTriple.setTriple(sys::getDefaultTargetTriple());
 
       std::string Error;
+      /*
+        * 对于lookupTarget函数的解释 ： 找到"Target.triple = mtriple"
+        * getMArch函数返回命令行指定的march，
+        * 如果没有那么就查找Targets链表中是否有target的triple与指定的mtriple相同，
+        * 没有就没有办法构造targetMachine
+      */
       TheTarget =
           TargetRegistry::lookupTarget(codegen::getMArch(), TheTriple, Error);
       if (!TheTarget) {
@@ -577,8 +594,8 @@ static int compileModule(char **argv, LLVMContext &Context) {
                                     setMIRFunctionAttributes);
       if (MIR)
         M = MIR->parseIRModule(SetDataLayout);
-    } else {
-      M = parseIRFile(InputFilename, Err, Context,
+    } else {  
+      M = parseIRFile(InputFilename, Err, Context,              //debug_b 非mir
                       ParserCallbacks(SetDataLayout));
     }
     if (!M) {
