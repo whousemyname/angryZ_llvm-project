@@ -2,17 +2,22 @@ add_llvm_component_group(ANGRYZ)
 
 set(LLVM_TARGET_DEFINITIONS ANGRYZ.td)
 
+tablegen(LLVM ANGRYZGenAsmWriter.inc -gen-asm-writer)
 tablegen(LLVM ANGRYZGenCallingConv.inc -gen-callingconv)
 tablegen(LLVM ANGRYZGenDAGISel.inc -gen-dag-isel)
 tablegen(LLVM ANGRYZGenInstrInfo.inc -gen-instr-info)
+tablegen(LLVM ANGRYZGenMCPseudoLowering.inc -gen-pseudo-lowering)
 tablegen(LLVM ANGRYZGenRegisterInfo.inc -gen-register-info)
 tablegen(LLVM ANGRYZGenSubtargetInfo.inc -gen-subtarget)
+
 add_public_tablegen_target(ANGRYZCommonTableGen)
 
 add_llvm_target(ANGRYZCodeGen
     ANGRYZTargetMachine.cpp
     ANGRYZTargetObjectFile.cpp
+
     ANGRYZISelDAGToDAG.cpp
+    ANGRYZAsmPrinter.cpp
 
     ANGRYZSubtarget.cpp
     ANGRYZISelLowering.cpp
@@ -21,12 +26,20 @@ add_llvm_target(ANGRYZCodeGen
     ANGRYZFrameLowering.cpp
 
     LINK_COMPONENTS
-    Target
+    Analysis
+    AsmPrinter
     CodeGen
+    CodeGenTypes
     Core
-    Support
-    SelectionDAG
+    IPO
+    MC
+    ANGRYZDesc
     ANGRYZInfo
+    SelectionDAG
+    Support
+    Target
+    TargetParser
+    TransformUtils
 
     ADD_TO_COMPONENT
     ANGRYZ
@@ -35,5 +48,5 @@ add_llvm_target(ANGRYZCodeGen
 
 
 
-add_subdirectory(TargetInfo)
 add_subdirectory(MCTargetDesc)
+add_subdirectory(TargetInfo)

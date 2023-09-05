@@ -1,22 +1,30 @@
-
+#include "ANGRYZ.h"
+#include "TargetInfo/ANGRYZTargetInfo.h"
 #include "ANGRYZTargetMachine.h"
 #include "ANGRYZSubtarget.h"
 #include "ANGRYZTargetObjectFile.h"
 #include "TargetInfo/ANGRYZTargetInfo.h"
+
+#include "llvm/ADT/STLExtras.h"
+#include "llvm/Analysis/TargetTransformInfo.h"
+#include "llvm/CodeGen/GlobalISel/IRTranslator.h"
+#include "llvm/CodeGen/GlobalISel/InstructionSelect.h"
+#include "llvm/CodeGen/GlobalISel/Legalizer.h"
+#include "llvm/CodeGen/GlobalISel/RegBankSelect.h"
+#include "llvm/CodeGen/MIRParser/MIParser.h"
+#include "llvm/CodeGen/MIRYamlMapping.h"
+#include "llvm/CodeGen/Passes.h"
+#include "llvm/CodeGen/TargetLoweringObjectFileImpl.h"
 #include "llvm/CodeGen/TargetPassConfig.h"
-#include "llvm/IR/Function.h"
+#include "llvm/InitializePasses.h"
 #include "llvm/MC/TargetRegistry.h"
-#include "llvm/Support/CodeGen.h"
-#include "ANGRYZ.h"
+#include "llvm/Support/FormattedStream.h"
+#include "llvm/Target/TargetOptions.h"
+#include "llvm/Transforms/IPO.h"
 #include <memory>
 #include <optional>
 
 using namespace llvm;
-
-extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeANGRYZTarget() {
-    RegisterTargetMachine<ANGRYZTargetMachine> X(getANGRYZTarget());
-}
-
 
 static StringRef computeDataLayout(const Triple &TT) {
     return "e-m:e-p:32:32-i64:64-n32-S128";
@@ -37,7 +45,7 @@ ANGRYZTargetMachine::ANGRYZTargetMachine (const Target &T, const Triple &TT, Str
                         getEffectiveRelocModel(TT, RM), 
                         getEffectiveCodeModel(CM, CodeModel::Small), OL), 
       Subtarget(TT, CPU, CPU, FS, Options.MCOptions.getABIName(), *this), 
-      TLOF(std::make_unique<ANGRYZELFTargetObjectFile>()){
+      TLOF(std::make_unique<TargetLoweringObjectFileELF>()){
 
     initAsmInfo();
     //todo
@@ -82,4 +90,9 @@ TargetPassConfig *ANGRYZTargetMachine::createPassConfig(PassManagerBase &PM) {
 bool ANGRYZPassConfig::addInstSelector() {
     addPass(createANGRYZISelDag(getANGRYZTargetMachine(), getOptLevel()));
     return false;
+}
+
+
+extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeANGRYZTarget() {
+    RegisterTargetMachine<ANGRYZTargetMachine> X(getANGRYZTarget());
 }

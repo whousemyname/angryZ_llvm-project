@@ -158,7 +158,7 @@ Expected<std::unique_ptr<MCStreamer>> LLVMTargetMachine::createMCStreamer(
   switch (FileType) {
   case CGFT_AssemblyFile: {
     MCInstPrinter *InstPrinter = getTarget().createMCInstPrinter(
-        getTargetTriple(), MAI.getAssemblerDialect(), MAI, MII, MRI);
+        getTargetTriple(), MAI.getAssemblerDialect(), MAI, MII, MRI);   //debug_b
 
     // Create a code emitter if asked to show the encoding.
     std::unique_ptr<MCCodeEmitter> MCE;

@@ -1,15 +1,16 @@
 #ifndef LLVM_LIB_TARGET_ANGRYZ_ANGRYZISELDAGTODAG_H
 #define LLVM_LIB_TARGET_ANGRYZ_ANGRYZISELDAGTODAG_H
 
+#include "ANGRYZ.h"
 #include "ANGRYZTargetMachine.h"
 #include "llvm/CodeGen/SelectionDAGISel.h"
-#include "llvm/CodeGen/SelectionDAGNodes.h"
-#include "llvm/Support/CodeGen.h"
+#include "llvm/Support/KnownBits.h"
 
 namespace llvm {
 
 class ANGRYZDAGToDAGISel : public SelectionDAGISel {
-    const ANGRYZSubtarget *subtarget = nullptr;
+private:
+    const ANGRYZSubtarget *Subtarget = nullptr;
 
 public:
     static char ID;
@@ -19,14 +20,13 @@ public:
         : SelectionDAGISel(ID, TargetMachine, OptLevel) {}
 
     bool runOnMachineFunction(MachineFunction &MF) override {   //debug_b
-        subtarget = &MF.getSubtarget<ANGRYZSubtarget>();
+        Subtarget = &MF.getSubtarget<ANGRYZSubtarget>();
         return SelectionDAGISel::runOnMachineFunction(MF);
     }
     void Select(SDNode *Node) override;
 
-
-private:
 #include "ANGRYZGenDAGISel.inc"
+
 };
 
 namespace ANGRYZ {

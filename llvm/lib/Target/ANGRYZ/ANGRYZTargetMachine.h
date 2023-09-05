@@ -1,12 +1,16 @@
 #ifndef LLVM_LIB_TARGET_ANGRYZ_ANGRYZTARGETMACHINE_H
 #define LLVM_LIB_TARGET_ANGRYZ_ANGRYZTARGETMACHINE_H
 
-//#include "ANGRYZ.h"
 #include "ANGRYZSubtarget.h"
-#include "llvm/Target/TargetLoweringObjectFile.h"
+#include "MCTargetDesc/ANGRYZMCTargetDesc.h"
+
+#include "llvm/CodeGen/SelectionDAGTargetInfo.h"
+#include "llvm/IR/DataLayout.h"
 #include "llvm/Target/TargetMachine.h"
-#include "ANGRYZSubtarget.h"
+#include "llvm/Target/TargetLoweringObjectFile.h"
 #include <memory>
+#include <optional>
+
 namespace llvm {
 
 
@@ -15,10 +19,10 @@ namespace llvm {
  * todo ： TargetMachine待实现
 */
 class ANGRYZTargetMachine : public LLVMTargetMachine {
+    //std::unique_ptr<ANGRYZSubtarget> Subtarget;
+    ANGRYZSubtarget Subtarget;
     std::unique_ptr<TargetLoweringObjectFile> TLOF;
     //mutable StringMap<std::unique_ptr<ANGRYZSubtarget>> SubtargetMap;
-    ANGRYZSubtarget Subtarget;
-    //std::unique_ptr<RISCVSubtarget> Subtarget;
 
 public :
     ANGRYZTargetMachine(const Target &T, const Triple &TT, StringRef CPU, 

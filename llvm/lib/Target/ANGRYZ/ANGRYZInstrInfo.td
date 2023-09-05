@@ -8,7 +8,7 @@ class angryz32 : Instruction {
 /*
     自定义SDNode
 */
-def ANGRYZRETFlag : SDNode<"ANGRYZISD::RETFlag", SDTNone, 
+def ANGRYZRETFlag : SDNode<"ANGRYZISD::RET_FLAG", SDTNone, 
                             [SDNPHasChain, SDNPOptInGlue, SDNPVariadic]>;
 
 /*

@@ -1,22 +1,46 @@
 #include "ANGRYZISelLowering.h"
-#include "llvm/ADT/SmallVector.h"
-#include "llvm/CodeGen/CallingConvLower.h"
+#include "MCTargetDesc/ANGRYZMCTargetDesc.h"
+#include "ANGRYZRegisterInfo.h"
+#include "ANGRYZ.h"
+#include "ANGRYZSubtarget.h"
+#include "llvm/ADT/SmallSet.h"
+#include "llvm/ADT/Statistic.h"
+#include "llvm/Analysis/MemoryLocation.h"
+#include "llvm/Analysis/VectorUtils.h"
+#include "llvm/CodeGen/MachineFrameInfo.h"
 #include "llvm/CodeGen/MachineFunction.h"
-#include "llvm/CodeGen/MachineValueType.h"
-#include "llvm/CodeGen/SelectionDAGNodes.h"
-#include "llvm/CodeGen/TargetLowering.h"
+#include "llvm/CodeGen/MachineInstrBuilder.h"
+#include "llvm/CodeGen/MachineJumpTableInfo.h"
+#include "llvm/CodeGen/MachineRegisterInfo.h"
+#include "llvm/CodeGen/TargetLoweringObjectFileImpl.h"
+#include "llvm/CodeGen/ValueTypes.h"
+#include "llvm/IR/DiagnosticInfo.h"
+#include "llvm/IR/DiagnosticPrinter.h"
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/Instructions.h"
+#include "llvm/IR/IntrinsicsRISCV.h"
+#include "llvm/IR/PatternMatch.h"
+#include "llvm/Support/CommandLine.h"
+#include "llvm/Support/Debug.h"
+#include "llvm/Support/ErrorHandling.h"
+#include "llvm/Support/KnownBits.h"
+#include "llvm/Support/MathExtras.h"
+#include "llvm/Support/raw_ostream.h"
+#include <optional>
 
 using namespace llvm;
+
+#define DEBUG_TYPE "angryz-lower"
 
 #include "ANGRYZGenCallingConv.inc"
 
 ANGRYZTargetLowering::ANGRYZTargetLowering(const TargetMachine &TM, const ANGRYZSubtarget &STI) 
-    :   TargetLowering(TM), Subtarget(STI) {
+    :   TargetLowering(TM), STI(STI) {
     
     //todo
     addRegisterClass(MVT::i32, &(ANGRYZ::HPRRegClass));
 
-    computeRegisterProperties(Subtarget.getRegisterInfo());
+    computeRegisterProperties(STI.getRegisterInfo());
 
 }
 

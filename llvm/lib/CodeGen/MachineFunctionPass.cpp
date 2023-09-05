@@ -88,7 +88,7 @@ bool MachineFunctionPass::runOnFunction(Function &F) {
     MF.print(OS);
   }
 
-  bool RV = runOnMachineFunction(MF);
+  bool RV = runOnMachineFunction(MF);   //debug_b
 
   if (ShouldEmitSizeRemarks) {
     // We wanted size remarks. Check if there was a change to the number of

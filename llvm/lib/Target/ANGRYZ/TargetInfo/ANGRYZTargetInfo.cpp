@@ -1,4 +1,4 @@
-#include "TargetInfo/ANGRYZTargetInfo.h"
+#include "ANGRYZTargetInfo.h"
 #include "llvm/MC/TargetRegistry.h"
 using namespace llvm;
 

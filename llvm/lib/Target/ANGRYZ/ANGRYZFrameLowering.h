@@ -2,18 +2,17 @@
 #define LLVM_LIB_TARGET_ANGRYZ_ANGRYZFRAMELOWERING_H
 
 
-#include "ANGRYZSubtarget.h"
+
 #include "llvm/CodeGen/MachineBasicBlock.h"
+#include "llvm/CodeGen/MachineFunction.h"
 #include "llvm/CodeGen/TargetFrameLowering.h"
 
 namespace llvm {
-
-class ANGRYZFrameLowering : public TargetFrameLowering {
-
 class ANGRYZSubtarget;
 
-private:
-    const ANGRYZSubtarget &Subtarget;
+class ANGRYZFrameLowering : public TargetFrameLowering {
+protected:
+    const ANGRYZSubtarget &STI;
 
 public:
     explicit ANGRYZFrameLowering(const ANGRYZSubtarget &STI) ;

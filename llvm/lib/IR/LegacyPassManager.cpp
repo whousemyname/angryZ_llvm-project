@@ -1432,7 +1432,7 @@ bool FPPassManager::runOnFunction(Function &F) {
 #ifdef EXPENSIVE_CHECKS
       uint64_t RefHash = FP->structuralHash(F);
 #endif
-      LocalChanged |= FP->runOnFunction(F);
+      LocalChanged |= FP->runOnFunction(F);   //debug_b
 
 #if defined(EXPENSIVE_CHECKS) && !defined(NDEBUG)
       if (!LocalChanged && (RefHash != FP->structuralHash(F))) {

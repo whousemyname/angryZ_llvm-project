@@ -1,24 +1,32 @@
 #ifndef LLVM_LIB_TARGET_ANGRYZ_ANGRYZISELLOWERING_H
 #define LLVM_LIB_TARGET_ANGRYZ_ANGRYZISELLOWERING_H
 
+#include "ANGRYZ.h"
+#include "llvm/CodeGen/CallingConvLower.h"
+#include "llvm/CodeGen/SelectionDAG.h"
 #include "llvm/CodeGen/TargetLowering.h"
-#include "llvm/Target/TargetMachine.h"
-#include "ANGRYZSubtarget.h"
-#include "ANGRYZISelLowering.h"
+#include "llvm/TargetParser/RISCVTargetParser.h"
+#include <optional>
 
 namespace llvm{
 
-class ANGRYZSubtarget;
 class ANGRYZRegisterInfo;
+
+namespace ANGRYZISD {
+enum NodeType : unsigned {
+    FIRST_NUMBER = ISD::BUILTIN_OP_END, 
+    RET_FLAG, 
+};
+}   //namespace ANGRYZISD
 
 class ANGRYZTargetLowering : public TargetLowering {
 private:
-    const ANGRYZSubtarget &Subtarget;
+    const ANGRYZSubtarget &STI;
 public:
     explicit ANGRYZTargetLowering(const TargetMachine &TM, const ANGRYZSubtarget &STI);
 
     const ANGRYZSubtarget &getSubtarget() const {
-        return Subtarget;
+        return STI;
     }
 
     // This method returns the name of a target specific DAG node.
@@ -37,12 +45,7 @@ public:
                         SelectionDAG &DAG) const override;
 };
 
-namespace ANGRYZISD {
-enum NodeType : unsigned {
-    FIRST_NUMBER = ISD::BUILTIN_OP_END, 
-    RET_FLAG, 
-};
-}   //namespace ANGRYZISD
+
 
 
 }   //namespace llvm

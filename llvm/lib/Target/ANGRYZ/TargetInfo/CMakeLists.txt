@@ -1,10 +1,10 @@
 add_llvm_component_library(LLVMANGRYZInfo
-    ANGRYZTargetInfo.cpp
+  ANGRYZTargetInfo.cpp
 
-    LINK_COMPONENTS
-    MC
-    Support
+  LINK_COMPONENTS
+  MC
+  Support
 
-    ADD_TO_COMPONENT
-    ANGRYZ
-)
+  ADD_TO_COMPONENT
+  ANGRYZ
+  )

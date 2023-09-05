@@ -86,7 +86,9 @@ public:
   const RISCVFrameLowering *getFrameLowering() const override {
     return &FrameLowering;
   }
-  const RISCVInstrInfo *getInstrInfo() const override { return &InstrInfo; }
+  const RISCVInstrInfo *getInstrInfo() const override { 
+    return &InstrInfo; 
+  }
   const RISCVRegisterInfo *getRegisterInfo() const override {
     return &RegInfo;
   }

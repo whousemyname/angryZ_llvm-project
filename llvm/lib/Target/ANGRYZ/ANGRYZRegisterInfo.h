@@ -1,9 +1,10 @@
 #ifndef LLVM_LIB_TARGET_ANGRYZ_ANGRYZREGISTERINFO_H
 #define LLVM_LIB_TARGET_ANGRYZ_ANGRYZREGISTERINFO_H
 
-#include "llvm/CodeGen/MachineFunction.h"
-#include "llvm/CodeGen/RegisterScavenging.h"
-#include <cstdint>
+
+#include "llvm/CodeGen/TargetRegisterInfo.h"
+
+
 
 #define GET_REGINFO_HEADER
 #include "ANGRYZGenRegisterInfo.inc"

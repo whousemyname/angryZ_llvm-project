@@ -1,8 +1,12 @@
 
 #include "ANGRYZSubtarget.h"
+#include "ANGRYZ.h"
 #include "ANGRYZTargetMachine.h" 
-#include "llvm/TargetParser/Triple.h"
+#include "llvm/MC/TargetRegistry.h"
+#include "llvm/Support/ErrorHandling.h"
 using namespace llvm;
+
+#define DEBUG_TYPE "angryz-subtarget"
 
 #define GET_SUBTARGETINFO_TARGET_DESC
 #define GET_SUBTARGETINFO_CTOR
@@ -37,6 +41,9 @@ ANGRYZSubtarget::initializeSubtargetDependencies(const Triple &TT, StringRef CPU
         像reginfo instrinfo framelowering targetlowering等的信息在构造中进行初始化
 
     */
-    ParseSubtargetFeatures(CPU, TuneCPU, FS);
+    if (CPU.empty()) {
+        CPU = "angryz";
+    }
+    ParseSubtargetFeatures(CPU, CPU, FS);
     return *this;
 }
