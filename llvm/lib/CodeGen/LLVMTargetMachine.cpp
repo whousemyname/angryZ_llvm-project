@@ -47,7 +47,7 @@ void LLVMTargetMachine::initAsmInfo() {
   // code generation. This is similar to the hack in the AsmPrinter for
   // module level assembly etc.
   STI.reset(TheTarget.createMCSubtargetInfo(
-      getTargetTriple().str(), getTargetCPU(), getTargetFeatureString()));
+      getTargetTriple().str(), getTargetCPU(), getTargetFeatureString()));    //debug_b
   assert(STI && "Unable to create subtarget info");
 
   MCAsmInfo *TmpAsmInfo = TheTarget.createMCAsmInfo(
@@ -221,7 +221,7 @@ Expected<std::unique_ptr<MCStreamer>> LLVMTargetMachine::createMCStreamer(
   return std::move(AsmStreamer);
 }
 
-bool LLVMTargetMachine::addPassesToEmitFile(
+bool LLVMTargetMachine::addPassesToEmitFile(              //debug_b
     PassManagerBase &PM, raw_pwrite_stream &Out, raw_pwrite_stream *DwoOut,
     CodeGenFileType FileType, bool DisableVerify,
     MachineModuleInfoWrapperPass *MMIWP) {
@@ -234,7 +234,7 @@ bool LLVMTargetMachine::addPassesToEmitFile(
     return true;
 
   if (TargetPassConfig::willCompleteCodeGenPipeline()) {
-    if (addAsmPrinter(PM, Out, DwoOut, FileType, MMIWP->getMMI().getContext()))
+    if (addAsmPrinter(PM, Out, DwoOut, FileType, MMIWP->getMMI().getContext()))   // debug_b
       return true;
   } else {
     // MIR printing is redundant with -filetype=null.

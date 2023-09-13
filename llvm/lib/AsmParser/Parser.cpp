@@ -29,9 +29,9 @@ static bool parseAssemblyInto(MemoryBufferRef F, Module *M,
   SM.AddNewSourceBuffer(std::move(Buf), SMLoc());
 
   std::optional<LLVMContext> OptContext;
-  return LLParser(F.getBuffer(), SM, Err, M, Index,
+  return LLParser(F.getBuffer(), SM, Err, M, Index,     //debug_b
                   M ? M->getContext() : OptContext.emplace(), Slots)
-      .Run(UpgradeDebugInfo, DataLayoutCallback);
+      .Run(UpgradeDebugInfo, DataLayoutCallback);   //debug_b
 }
 
 bool llvm::parseAssemblyInto(MemoryBufferRef F, Module *M,

@@ -23,6 +23,8 @@ public:
         Subtarget = &MF.getSubtarget<ANGRYZSubtarget>();
         return SelectionDAGISel::runOnMachineFunction(MF);
     }
+
+    StringRef getPassName() const override;
     void Select(SDNode *Node) override;
 
 #include "ANGRYZGenDAGISel.inc"

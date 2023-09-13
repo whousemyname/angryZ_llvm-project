@@ -77,7 +77,7 @@ TableGen::Emitter::Opt X[] = {
 
 } // namespace
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv) {     //debug_b
   InitLLVM X(argc, argv);
   cl::ParseCommandLineOptions(argc, argv);
 

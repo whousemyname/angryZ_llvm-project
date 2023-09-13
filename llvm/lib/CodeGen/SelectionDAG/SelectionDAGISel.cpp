@@ -479,7 +479,7 @@ bool SelectionDAGISel::runOnMachineFunction(MachineFunction &mf) {
     // This performs initialization so lowering for SplitCSR will be correct.
     TLI->initializeSplitCSR(EntryMBB);
 
-  SelectAllBasicBlocks(Fn);
+  SelectAllBasicBlocks(Fn);       //debug_b
   if (FastISelFailed && EnableFastISelFallbackReport) {
     DiagnosticInfoISelFallback DiagFallback(Fn);
     Fn.getContext().diagnose(DiagFallback);
@@ -688,7 +688,7 @@ void SelectionDAGISel::SelectBasicBlock(BasicBlock::const_iterator Begin,
   // nodes for this block.
   for (BasicBlock::const_iterator I = Begin; I != End && !SDB->HasTailCall; ++I) {
     if (!ElidedArgCopyInstrs.count(&*I))
-      SDB->visit(*I);
+      SDB->visit(*I);     //debug_b
   }
 
   // Make sure the root of the DAG is up-to-date.
@@ -1464,7 +1464,7 @@ void SelectionDAGISel::SelectAllBasicBlocks(const Function &Fn) {
   CurDAG->setFunctionLoweringInfo(FuncInfo.get());
 
   if (!FastIS) {
-    LowerArguments(Fn);
+    LowerArguments(Fn);     //debug_b
   } else {
     // See if fast isel can lower the arguments.
     FastIS->startNewBlock();
@@ -1551,7 +1551,7 @@ void SelectionDAGISel::SelectAllBasicBlocks(const Function &Fn) {
       if (!PrepareEHLandingPad())
         continue;
 
-    // Before doing SelectionDAG ISel, see if FastISel has been requested.
+    // Before doing SelectionDAG ISel, see if FastISel has been requested.    //debug_b
     if (FastIS) {
       if (LLVMBB != &Fn.getEntryBlock())
         FastIS->startNewBlock();
@@ -1699,7 +1699,7 @@ void SelectionDAGISel::SelectAllBasicBlocks(const Function &Fn) {
       // not handled by FastISel. If FastISel is not run, this is the entire
       // block.
       bool HadTailCall;
-      SelectBasicBlock(Begin, BI, HadTailCall);
+      SelectBasicBlock(Begin, BI, HadTailCall);       //debug_b
 
       // But if FastISel was run, we already selected some of the block.
       // If we emitted a tail-call, we need to delete any previously emitted

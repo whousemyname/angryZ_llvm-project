@@ -14,7 +14,6 @@
 namespace llvm {
 
 
-//class ANGRYZTargetMachine : LLVMTargetMachine{};
 /*
  * todo ： TargetMachine待实现
 */

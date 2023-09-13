@@ -73,7 +73,7 @@ bool LLParser::Run(bool UpgradeDebugInfo,
         "Can't read textual IR with a Context that discards named Values");
 
   if (M) {
-    if (parseTargetDefinitions(DataLayoutCallback))
+    if (parseTargetDefinitions(DataLayoutCallback))     //debug_b
       return true;
   }
 

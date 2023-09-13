@@ -150,7 +150,7 @@ static void cpuHelp(ArrayRef<SubtargetSubTypeKV> CPUTable) {
 
 static FeatureBitset getFeatures(StringRef CPU, StringRef TuneCPU, StringRef FS,
                                  ArrayRef<SubtargetSubTypeKV> ProcDesc,
-                                 ArrayRef<SubtargetFeatureKV> ProcFeatures) {
+                                 ArrayRef<SubtargetFeatureKV> ProcFeatures) {   //debug_b
   SubtargetFeatures Features(FS);
 
   if (ProcDesc.empty() || ProcFeatures.empty())
@@ -316,7 +316,7 @@ const MCSchedModel &MCSubtargetInfo::getSchedModelForCPU(StringRef CPU) const {
 
   if (!CPUEntry) {
     if (CPU != "help") // Don't error if the user asked for help.
-      errs() << "'" << CPU
+      errs() << "'" << CPU                                            //debug_b  is not a recognized processor for this targe
              << "' is not a recognized processor for this target"
              << " (ignoring processor)\n";
     return MCSchedModel::GetDefaultSchedModel();

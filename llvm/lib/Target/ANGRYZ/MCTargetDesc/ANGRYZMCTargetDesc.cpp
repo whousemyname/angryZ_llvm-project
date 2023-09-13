@@ -62,9 +62,18 @@ createANGRYZMCObjectFileInfo(MCContext &Ctx, bool PIC,
 
 static MCSubtargetInfo *createANGRYZMCSubtargetInfo(const Triple &TT,
                                                    StringRef CPU, StringRef FS) {
+  
+  //debug_b createANGRYZMCSubtargetInfo 
+  /*
+    如果这里设置了generic-rv32， 但是这个CPUStr只是针对于MCSubtargetInfo， 之后TargetMachine在MC的初始化过程中
+    如果发现CPU或者TuneCPU不为空，那么就会查找该CPU所对应的调度模型，但是由于目前没有定义CPU，以及相应的调度模型，
+    所以此处的MC的CPU与codegen的CPU的设置为一样，都为""
+    解决这个bug ： 'generic-rv32' is not a recognized processor for this target (ignoring processor)
+  */
+  /*
   if (CPU.empty() || CPU == "generic")
     CPU = TT.isArch64Bit() ? "generic-rv64" : "generic-rv32";
-
+  */
     //调用td生成的genSubtargetInfo.inc
   return createANGRYZMCSubtargetInfoImpl(TT, CPU, /*TuneCPU*/ CPU, FS);
 }

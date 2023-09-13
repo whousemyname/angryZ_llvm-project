@@ -2,6 +2,7 @@
 #include "ANGRYZ.h"
 #include "ANGRYZISelDAGToDAG.h"
 
+#include "llvm/ADT/StringRef.h"
 #include "llvm/CodeGen/ISDOpcodes.h"
 #include "llvm/CodeGen/SelectionDAGNodes.h"
 #include "llvm/Pass.h"
@@ -13,6 +14,11 @@ using namespace llvm;
 #define DEBUG_TYPE "angryz-isel" 
 
 char ANGRYZDAGToDAGISel::ID = 0;
+
+StringRef ANGRYZDAGToDAGISel::getPassName() const {
+    return  "ANGRYZ ISel " ;
+}
+
 
 void ANGRYZDAGToDAGISel::Select(SDNode *Node) {
     SDLoc DL(Node);
