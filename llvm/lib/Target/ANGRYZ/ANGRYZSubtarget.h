@@ -2,7 +2,7 @@
 #define LLVM_LIB_TARGET_ANGRYZ_ANGRYZSUBTARGET_H
 
 #include "ANGRYZRegisterInfo.h"
-#include "TargetInfo/ANGRYZTargetInfo.h"
+#include "MCTargetDesc/ANGRYZBaseInfo.h"
 #include "ANGRYZFrameLowering.h"
 #include "ANGRYZISelLowering.h"
 #include "ANGRYZInstrInfo.h"

@@ -4,6 +4,7 @@
 #include "ANGRYZ.h"
 #include "ANGRYZTargetMachine.h"
 #include "llvm/CodeGen/SelectionDAGISel.h"
+#include "llvm/CodeGen/SelectionDAGNodes.h"
 #include "llvm/Support/KnownBits.h"
 
 namespace llvm {
@@ -26,6 +27,15 @@ public:
 
     StringRef getPassName() const override;
     void Select(SDNode *Node) override;
+
+
+    /*
+        ComplexPattern-select
+    */
+
+    bool SelectAddrRegImm(SDValue Addr, SDValue &Base, SDValue &Offset, 
+                          bool IsINX = false);
+    bool SelectAddrFrameIndex (SDValue Addr, SDValue &Base, SDValue &Offset);
 
 #include "ANGRYZGenDAGISel.inc"
 

@@ -505,6 +505,8 @@ void RISCVFrameLowering::emitPrologue(MachineFunction &MF,
   // depending on which of these groups the frame index applies to.
   // The following calculates the correct offset knowing the number of callee
   // saved registers spilt by the two methods.
+  //对于负帧索引，帧指针的偏移量将根据帧索引适用于哪些组而有所不同。
+  //下面计算正确的偏移量，了解这两种方法溢出的被调用者保存的寄存器的数量。
   if (int LibCallRegs = getLibCallID(MF, MFI.getCalleeSavedInfo()) + 1) {
     // Calculate the size of the frame managed by the libcall. The libcalls are
     // implemented such that the stack will always be 16 byte aligned.

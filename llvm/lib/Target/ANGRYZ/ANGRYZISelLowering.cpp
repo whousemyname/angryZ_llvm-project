@@ -51,6 +51,7 @@ const char *ANGRYZTargetLowering::getTargetNodeName(unsigned Opcode) const {
         defalut : 
             return nullptr;
     }
+    return nullptr;
 }
 
 // Lower incoming arguments, copy physregs into vregs
@@ -65,7 +66,7 @@ SDValue ANGRYZTargetLowering::LowerFormalArguments(SDValue Chain, CallingConv::I
     CCState CCInfo(CallConv, IsVarArg, MF, ArgLocs, *DAG.getContext());
     CCInfo.AnalyzeFormalArguments(Ins, CC_ANGRYZ);
 
-    for (unsigned i = 0, e = ArgLocs.size(); i < e; ++i) {
+    for (unsigned int i = 0, end = ArgLocs.size(); i < end; ++i) {
         CCValAssign &VA = ArgLocs[i];
     }
 

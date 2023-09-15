@@ -1,14 +1,15 @@
-def RetCC_ANGRYZ : CallingConv<
-                                [
-                                    CCIfType<[i1, i8, i16, i32], CCAssignToReg<[H10, H11]>>, 
-                                    CCIfType<[i32], CCAssignToStack<4, 4>>, 
+
+
+def RetCC_ANGRYZ : CallingConv<[
+                                CCIfType<[i1, i8, i16, i32], CCAssignToReg<[H10, H11]>>, 
+                                CCIfType<[i32], CCAssignToStack<4, 4>>
                                 ]
                               >;
 
 def CC_ANGRYZ : CallingConv<[
 
     CCIfType<[i1, i8, i16, i32], CCAssignToReg<[H10, H11, H12, H13, H14]>>, 
-    CCIfType<[i32], CCAssignToStack<4, 4>>, 
+    CCIfType<[i32], CCAssignToStack<4, 4>> 
 ]>;
 
 

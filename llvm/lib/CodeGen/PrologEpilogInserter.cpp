@@ -259,7 +259,7 @@ bool PEI::runOnMachineFunction(MachineFunction &MF) {
   // must be called before this function in order to set the AdjustsStack
   // and MaxCallFrameSize variables.
   if (!F.hasFnAttribute(Attribute::Naked))
-    insertPrologEpilogCode(MF);
+    insertPrologEpilogCode(MF);       //debug_b  prolog epilog_pass
 
   // Reinsert stashed debug values at the start of the entry blocks.
   for (auto &I : EntryDbgValues)
@@ -1508,7 +1508,7 @@ void PEI::replaceFrameIndicesBackward(MachineBasicBlock *BB,
         continue;
 
       // Eliminate this FrameIndex operand.
-      RemovedMI = TRI.eliminateFrameIndex(MI, SPAdj, Idx, LocalRS);
+      RemovedMI = TRI.eliminateFrameIndex(MI, SPAdj, Idx, LocalRS);   //debug_b
       if (RemovedMI)
         break;
     }

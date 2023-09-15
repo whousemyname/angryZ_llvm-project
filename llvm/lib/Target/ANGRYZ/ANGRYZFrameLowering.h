@@ -5,10 +5,13 @@
 
 #include "llvm/CodeGen/MachineBasicBlock.h"
 #include "llvm/CodeGen/MachineFunction.h"
+#include "llvm/CodeGen/Register.h"
 #include "llvm/CodeGen/TargetFrameLowering.h"
+#include "llvm/MC/TargetRegistry.h"
 
 namespace llvm {
 class ANGRYZSubtarget;
+
 
 class ANGRYZFrameLowering : public TargetFrameLowering {
 protected:
@@ -20,7 +23,10 @@ public:
     void emitPrologue(MachineFunction &MF, MachineBasicBlock &MBB) const override;
     void emitEpilogue(MachineFunction &MF, MachineBasicBlock &MBB) const override;
     bool hasFP(const MachineFunction &MF) const override;
-};
+
+private:
+    void determineFrameLayout (MachineFunction &MF) const;
+};  //end class ANGRYZFrameLowering
 
 }   // namespace llvm
 

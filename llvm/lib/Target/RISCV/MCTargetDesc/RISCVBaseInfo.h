@@ -320,7 +320,7 @@ enum FenceField {
 }
 
 // Describes the supported floating point rounding mode encodings.
-namespace RISCVFPRndMode {
+namespace RISCVFPRndMode {  
 enum RoundingMode {
   RNE = 0,
   RTZ = 1,
