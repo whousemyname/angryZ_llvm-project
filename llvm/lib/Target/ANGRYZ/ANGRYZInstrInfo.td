@@ -111,6 +111,40 @@ def LW : angryz32 {
     let Inst{5-0} = opcode;
 }
 
+def LB : angryz32 {
+    let OutOperandList = (outs HPR:$rd);
+    let InOperandList = (ins HPR:$rs1, simm12:$imm12);
+    let AsmString = "LB $rd, ${imm12}(${rs1})";
+
+    bits<6> opcode = 0b000100;
+    bits<7> rd;    
+    bits<7> rs1;
+    bits<12> imm12;
+    let Inst{31-20} = imm12;
+    let Inst{19-13} = rs1;
+    let Inst{12-6} = rd;
+    let Inst{5-0} = opcode;
+}
+
+def LBU : angryz32 {
+    let OutOperandList = (outs HPR:$rd);
+    let InOperandList = (ins HPR:$rs1, simm12:$imm12);
+    let AsmString = "LB $rd, ${imm12}(${rs1})";
+
+    bits<6> opcode = 0b000101;
+    bits<7> rd;    
+    bits<7> rs1;
+    bits<12> imm12;
+    let Inst{31-20} = imm12;
+    let Inst{19-13} = rs1;
+    let Inst{12-6} = rd;
+    let Inst{5-0} = opcode;
+}
+
+
+/*
+  store
+*/
 def SW : angryz32 {
     let OutOperandList = (outs);
     let InOperandList = (ins HPR:$rs2, HPR:$rs1, simm12:$imm12);
@@ -126,6 +160,21 @@ def SW : angryz32 {
     let Inst{5-0} = opcode;
 }
 
+
+def SB : angryz32 {
+    let OutOperandList = (outs);
+    let InOperandList = (ins HPR:$rs2, HPR:$rs1, simm12:$imm12);
+    let AsmString = "SB  $rs2, ${imm12}(${rs1})";
+
+    bits<6> opcode = 0b000110;
+    bits<7> rs2;
+    bits<7> rs1;
+    bits<12> imm12;
+    let Inst{31-20} = imm12;
+    let Inst{19-13} = rs1;
+    let Inst{12-6} = rs2;
+    let Inst{5-0} = opcode;
+}
 
 /*
     自定义伪指令
@@ -157,6 +206,16 @@ def : Pat<(add HPR:$rs1, HPR:$rs2), (ADD HPR:$rs1, HPR:$rs2)>;
 def : Pat<(load (AddrRegImm (i32 HPR:$rs1), simm12:$imm12)), 
           (LW HPR:$rs1, simm12:$imm12)>;
 
-def : Pat<(store (i32 HPR:$rs2), (AddrRegImm (i32 HPR:$rs1), 
-                simm12:$imm12)), 
+def : Pat<(i32 (extloadi8 (AddrRegImm (i32 HPR:$rs1), simm12:$imm12))),     //extloadi8 是任意ext类型
+          (LBU HPR:$rs1, simm12:$imm12)>;
+
+def : Pat<(i32 (zextloadi8 (AddrRegImm (i32 HPR:$rs1), simm12:$imm12))),    //zext 是零扩展
+          (LBU HPR:$rs1, simm12:$imm12)>;
+
+def : Pat<(truncstorei8 (i32 HPR:$rs2), 
+                        (AddrRegImm (i32 HPR:$rs1), simm12:$imm12)), 
+          (SB HPR:$rs2, HPR:$rs1, simm12:$imm12)>;
+
+def : Pat<(store (i32 HPR:$rs2), 
+                 (AddrRegImm (i32 HPR:$rs1), simm12:$imm12)), 
           (SW HPR:$rs2, HPR:$rs1, simm12:$imm12)>;

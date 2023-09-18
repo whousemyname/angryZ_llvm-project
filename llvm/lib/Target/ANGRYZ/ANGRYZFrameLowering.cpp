@@ -55,6 +55,12 @@ static void emitSCSPrologue(MachineFunction &MF, MachineBasicBlock &MBB,
         return ;
 }
 
+static void emitSCSEpilogue(MachineFunction &MF, MachineBasicBlock &MBB,
+                            MachineBasicBlock::iterator MI,
+                            const DebugLoc &DL) {
+  if (!MF.getFunction().hasFnAttribute(Attribute::ShadowCallStack))
+    return;
+}
 
 /*
   toRead
@@ -190,13 +196,6 @@ void ANGRYZFrameLowering::emitPrologue(MachineFunction &MF, MachineBasicBlock &M
   }
 }
 
-
-static void emitSCSEpilogue(MachineFunction &MF, MachineBasicBlock &MBB,
-                            MachineBasicBlock::iterator MI,
-                            const DebugLoc &DL) {
-  if (!MF.getFunction().hasFnAttribute(Attribute::ShadowCallStack))
-    return;
-}
 
 void ANGRYZFrameLowering::emitEpilogue(MachineFunction &MF, MachineBasicBlock &MBB) const {
   const ANGRYZRegisterInfo *RI = STI.getRegisterInfo();
