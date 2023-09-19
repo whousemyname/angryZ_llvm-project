@@ -1,4 +1,5 @@
 #include "ANGRYZMCTargetDesc.h"
+#include "ANGRYZBaseInfo.h"
 #include "ANGRYZInstPrinter.h"
 #include "ANGRYZMCAsmInfo.h"
 #include "TargetInfo/ANGRYZTargetInfo.h"

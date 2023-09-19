@@ -2,6 +2,7 @@
 #include "ANGRYZInstrInfo.h"
 #include "ANGRYZRegisterInfo.h"
 #include "ANGRYZSubtarget.h"
+#include "MCTargetDesc/ANGRYZMCTargetDesc.h"
 #include "llvm/BinaryFormat/Dwarf.h"
 #include "llvm/CodeGen/MachineBasicBlock.h"
 #include "llvm/CodeGen/MachineFrameInfo.h"
@@ -11,11 +12,13 @@
 #include "llvm/CodeGen/MachineRegisterInfo.h"
 #include "llvm/CodeGen/Register.h"
 #include "llvm/CodeGen/RegisterScavenging.h"
+#include "llvm/CodeGen/TargetRegisterInfo.h"
 #include "llvm/IR/CallingConv.h"
 #include "llvm/IR/DebugLoc.h"
 #include "llvm/IR/DiagnosticInfo.h"
 #include "llvm/MC/MCDwarf.h"
 #include "llvm/Support/Alignment.h"
+#include "llvm/Support/ErrorHandling.h"
 #include "llvm/Support/LEB128.h"
 #include "llvm/Support/MathExtras.h"
 #include "llvm/Support/TypeSize.h"
@@ -26,13 +29,6 @@
 #include <iterator>
 using namespace llvm;
 
-ANGRYZFrameLowering::ANGRYZFrameLowering(const ANGRYZSubtarget &STI) 
-    :   TargetFrameLowering(StackGrowsDown, Align(16), 0, Align(16)), 
-        STI(STI){
-    //todo
-}
-
-
 static Register getFPReg(const ANGRYZSubtarget &STI) {
     return ANGRYZ::H8;
 }
@@ -40,7 +36,6 @@ static Register getFPReg(const ANGRYZSubtarget &STI) {
 static Register getSPReg (const ANGRYZSubtarget &STI) {
     return ANGRYZ::H2;
 }
-
 
 /*
     目前暂时按照riscv实现
@@ -81,61 +76,68 @@ getUnmanagedCSI(const MachineFunction &MF,
   return NonLibcallCSI;
 }
 
-void ANGRYZFrameLowering::emitPrologue(MachineFunction &MF, MachineBasicBlock &MBB) const {
+ANGRYZFrameLowering::ANGRYZFrameLowering(const ANGRYZSubtarget &STI) 
+    :   TargetFrameLowering(StackGrowsDown, Align(16), 0, Align(16)), 
+        STI(STI){
+    //todo
+}
 
-    MachineFrameInfo &MFI = MF.getFrameInfo();
-    //riscv在这里实现了自己的MachineFunctionInfo
-    const ANGRYZRegisterInfo *RI = STI.getRegisterInfo();
-    const ANGRYZInstrInfo *TII = STI.getInstrInfo();
-    MachineBasicBlock::iterator MBBI = MBB.begin();
+void ANGRYZFrameLowering::emitPrologue(MachineFunction &MF,
+                                       MachineBasicBlock &MBB) const {
 
-    Register FPReg = getFPReg(STI);
-    Register SPReg = getSPReg(STI);
-    DebugLoc DL;
+  MachineFrameInfo &MFI = MF.getFrameInfo();
+  //riscv在这里实现了自己的MachineFunctionInfo
+  const ANGRYZRegisterInfo *RI = STI.getRegisterInfo();
+  const ANGRYZInstrInfo *TII = STI.getInstrInfo();
+  MachineBasicBlock::iterator MBBI = MBB.begin();
 
-    if (MF.getFunction().getCallingConv() == CallingConv::GHC)
-        return ;
-    emitSCSPrologue(MF, MBB, MBBI, DL);
+  Register FPReg = getFPReg(STI);
+  Register SPReg = getSPReg(STI);
+  DebugLoc DL;
 
-    MachineBasicBlock::iterator FirstFrameSetup = MBBI;
+  if (MF.getFunction().getCallingConv() == CallingConv::GHC)
+      return ;
+  emitSCSPrologue(MF, MBB, MBBI, DL);   // 不太懂 影子栈是一种怎么样的结构
 
-    while (MBBI != MBB.end() && MBBI->getFlag(MachineInstr::FrameSetup))
-        ++MBBI;
-    
-    determineFrameLayout(MF);
-    //对于负帧索引，帧指针的偏移量将根据帧索引适用于哪些组而有所不同。
-    //下面计算正确的偏移量，了解这两种方法溢出的被调用者保存的寄存器的数量。
-    /*
-        库调用相关设置
-    */
-    /*
-    if (int LibCallRegs = getLibCallID(MF, MFI.getCalleeSavedInfo()) + 1) {
+  MachineBasicBlock::iterator FirstFrameSetup = MBBI;
 
-    }*/
+  while (MBBI != MBB.end() && MBBI->getFlag(MachineInstr::FrameSetup))
+      ++MBBI;
+  
+  determineFrameLayout(MF);     //确定stack的大小，根据构造函数中传递的对齐align信息来调整frame的大小
+  //对于负帧索引，帧指针的偏移量将根据帧索引适用于哪些组而有所不同。
+  //下面计算正确的偏移量，了解这两种方法溢出的被调用者保存的寄存器的数量。
+  /*
+      库调用相关设置
+  */
+  /*
+  if (int LibCallRegs = getLibCallID(MF, MFI.getCalleeSavedInfo()) + 1) {
 
-    //riscv这里还考虑了v panding之后
-    uint64_t StackSize = MFI.getStackSize();
-    uint64_t RVPushStakcSize = 0;
-    uint64_t LibCallStackSize = 0;
-    uint64_t RealStackSize = StackSize + LibCallStackSize + RVPushStakcSize;
-    uint64_t RVVStackSize = 0;
+  }*/
 
-    // Early exit if there is no need to allocate on the stack
-    if (RealStackSize == 0 && !MFI.adjustsStack())
-        return;
-    
-    /*
-        todo
-        isRegisterReservedByUser
-        getFirstSPAdjustAmount      对于sp的优化
-        isPushable && CM_PUSH
+  //riscv这里还考虑了v panding之后
+  uint64_t StackSize = MFI.getStackSize();
+  uint64_t RVPushStakcSize = 0;
+  uint64_t LibCallStackSize = 0;
+  uint64_t RealStackSize = StackSize + LibCallStackSize + RVPushStakcSize;
+  uint64_t RVVStackSize = 0;
 
-    */
-    if (StackSize != 0) {
-        RI->adjustReg(MBB, MBBI, DL, SPReg, SPReg, 
-                        StackOffset::getFixed(-StackSize), MachineInstr::FrameSetup, 
-                        getStackAlign());
-    }
+  // Early exit if there is no need to allocate on the stack
+  if (RealStackSize == 0 && !MFI.adjustsStack())
+      return;
+  
+  /*
+      todo
+      isRegisterReservedByUser
+      getFirstSPAdjustAmount      对于sp的优化
+      isPushable && CM_PUSH
+
+  */
+  if (StackSize != 0) {
+      RI->adjustReg(MBB, MBBI, DL, SPReg, SPReg, 
+                      StackOffset::getFixed(-StackSize), MachineInstr::FrameSetup, 
+                      getStackAlign());
+  }
 
     // Emit ".cfi_def_cfa_offset RealStackSize"
   unsigned CFIIndex = MF.addFrameInst(
@@ -272,6 +274,7 @@ void ANGRYZFrameLowering::emitEpilogue(MachineFunction &MF, MachineBasicBlock &M
 
 
 /*
+  判断该function是否拥有一个fp
     仿照riscv写的
     帧指针消除是否被禁用：如果帧指针消除（Frame Pointer Elimination）被禁用，意味着函数需要保留帧指针，因此会返回 true。
     是否需要动态栈重新对齐：如果函数需要在运行时对栈进行动态重新对齐（Dynamic Stack Realignment），通常会要求使用帧指针，因此也会返回 true。
@@ -279,27 +282,169 @@ void ANGRYZFrameLowering::emitEpilogue(MachineFunction &MF, MachineBasicBlock &M
     是否获取了帧地址（Frame Address Taken）：如果函数中的某些部分需要访问帧地址，也就是栈帧的起始地址，通常需要帧指针来实现这一功能。
 */
 bool ANGRYZFrameLowering::hasFP(const MachineFunction &MF) const {
-    const TargetRegisterInfo *TargetRI = MF.getSubtarget().getRegisterInfo();
+  const TargetRegisterInfo *TargetRI = MF.getSubtarget().getRegisterInfo();
 
-    const MachineFrameInfo &MFrameI = MF.getFrameInfo();
-    return MF.getTarget().Options.DisableFramePointerElim(MF) || 
-            TargetRI->hasStackRealignment(MF) ||
-            MFrameI.hasVarSizedObjects() || 
-            MFrameI.isFrameAddressTaken();
+  const MachineFrameInfo &MFI = MF.getFrameInfo();
+  return MF.getTarget().Options.DisableFramePointerElim(MF) || 
+          TargetRI->hasStackRealignment(MF) ||
+          MFI.hasVarSizedObjects() || 
+          MFI.isFrameAddressTaken();
 }
 
+// Eliminate ADJCALLSTACKDOWN, ADJCALLSTACKUP pseudo instructions.
+MachineBasicBlock::iterator ANGRYZFrameLowering::eliminateCallFramePseudoInstr(
+    MachineFunction &MF, MachineBasicBlock &MBB,
+    MachineBasicBlock::iterator MI) const {
+  Register SPReg = ANGRYZ::H2;
+  DebugLoc DL = MI->getDebugLoc();
+
+  if (!hasReservedCallFrame(MF)) {
+    // If space has not been reserved for a call frame, ADJCALLSTACKDOWN and
+    // ADJCALLSTACKUP must be converted to instructions manipulating the stack
+    // pointer. This is necessary when there is a variable length stack
+    // allocation (e.g. alloca), which means it's not possible to allocate
+    // space for outgoing arguments from within the function prologue.
+    int64_t Amount = MI->getOperand(0).getImm();
+
+    if (Amount != 0) {
+      // Ensure the stack remains aligned after adjustment.
+      Amount = alignSPAdjust(Amount);
+
+      if (MI->getOpcode() == ANGRYZ::ADJCALLSTACKDOWN)
+        Amount = -Amount;
+
+      const ANGRYZRegisterInfo &RI = *STI.getRegisterInfo();
+      RI.adjustReg(MBB, MI, DL, SPReg, SPReg, StackOffset::getFixed(Amount),
+                   MachineInstr::NoFlags, getStackAlign());
+    }
+  }
+
+  return MBB.erase(MI);
+}
 
 void ANGRYZFrameLowering::determineFrameLayout (MachineFunction &MF) const {
-    MachineFrameInfo &MFI = MF.getFrameInfo();
-    uint64_t FrameSize = MFI.getStackSize();
+  MachineFrameInfo &MFI = MF.getFrameInfo();
+  uint64_t FrameSize = MFI.getStackSize();
 
-    Align StackAlign = getStackAlign();
-    FrameSize = alignTo(FrameSize, StackAlign);
+  Align StackAlign = getStackAlign();
+  FrameSize = alignTo(FrameSize, StackAlign);
 
-    MFI.setStackSize(FrameSize);
+  MFI.setStackSize(FrameSize);
 
-    /*
-        riscv之后针对看是否是v扩展，而是否采取panding
-    */
+  /*
+      TODO ANGRYZFrameLowering::emitProlog --> determineFrameLayout 
+      riscv之后针对看是否是v扩展，而是否采取panding
+  */
+}
+
+StackOffset
+ANGRYZFrameLowering::getFrameIndexReference(const MachineFunction &MF, int FI,
+                                           Register &FrameReg) const {
+  const MachineFrameInfo &MFI = MF.getFrameInfo();
+  const TargetRegisterInfo *RI = MF.getSubtarget().getRegisterInfo();
+
+  // Callee-saved registers should be referenced relative to the stack
+  // pointer (positive offset), otherwise use the frame pointer (negative
+  // offset).
+  const auto &CSI = getUnmanagedCSI(MF, MFI.getCalleeSavedInfo());
+  int MinCSFI = 0;
+  int MaxCSFI = -1;
+  StackOffset Offset;
+  auto StackID = MFI.getStackID(FI);
+
+  assert((StackID == TargetStackID::Default ||
+        StackID == TargetStackID::ScalableVector) &&
+        "Unexpected stack ID for the frame object."); 
+  
+  if (StackID == TargetStackID::Default) {
+    Offset =
+        StackOffset::getFixed(MFI.getObjectOffset(FI) - getOffsetOfLocalArea() +
+                              MFI.getOffsetAdjustment());
+  } else if (StackID == TargetStackID::ScalableVector) {
+    Offset = StackOffset::getScalable(MFI.getObjectOffset(FI));
+  }
+  
+  uint64_t FirstSPAdjustAmount = getFirstSPAdjustAmount(MF);
+
+  if (CSI.size()) {
+    MinCSFI = CSI[0].getFrameIdx();
+    MaxCSFI = CSI[CSI.size() - 1].getFrameIdx();
+  }
+  if (FI >= MinCSFI && FI <= MaxCSFI) {
+    FrameReg = ANGRYZ::H2;
+
+    if (FirstSPAdjustAmount)
+      Offset += StackOffset::getFixed(FirstSPAdjustAmount);
+    else
+      Offset += StackOffset::getFixed(getStackSizeWithRVVPadding(MF));
+    return Offset;
+  }
+
+  if (RI->hasStackRealignment(MF) && !MFI.isFixedObjectIndex(FI)) {
+    
+    // TODO
+    llvm_unreachable("uncomplete implement");
+  } else {
+    FrameReg = RI->getFrameRegister(MF);
+  }
+
+  if (FrameReg == getFPReg(STI)) {
+    Offset += StackOffset::getFixed(0);
+    if (FI >= 0)
+      Offset -= StackOffset::getFixed(0);
+  
+    if (MFI.getStackID(FI) == TargetStackID::ScalableVector) {
+      assert(!RI->hasStackRealignment(MF) &&
+             "Can't index across variable sized realign");
+      // We don't expect any extra RVV alignment padding, as the stack size
+      // and RVV object sections should be correct aligned in their own
+      // right.
+      assert(MFI.getStackSize() == getStackSizeWithRVVPadding(MF) &&
+             "Inconsistent stack layout");
+      Offset -= StackOffset::getFixed(MFI.getStackSize());
+    }
+
+    return Offset;
+  }
+
+  llvm_unreachable("uncomplete implement");
+}
+
+uint64_t ANGRYZFrameLowering::getStackSizeWithRVVPadding(const MachineFunction &MF) const {
+  const MachineFrameInfo &MFI = MF.getFrameInfo();
+  // riscv 使用的 RISCVMachineFunctionInfo保存了部分信息，
+  //这里直接因为没有涉及V 直接将其置为零
+  uint64_t RVVPadding = 0;
+  return alignTo(MFI.getStackSize() + RVVPadding, getStackAlign());
+}
+
+// We would like to split the SP adjustment to reduce prologue/epilogue
+// as following instructions. In this way, the offset of the callee saved
+// register could fit in a single store.
+//   add     sp,sp,-2032
+//   sw      ra,2028(sp)
+//   sw      s0,2024(sp)
+//   sw      s1,2020(sp)
+//   sw      s3,2012(sp)
+//   sw      s4,2008(sp)
+//   add     sp,sp,-64
+uint64_t
+ANGRYZFrameLowering::getFirstSPAdjustAmount(const MachineFunction &MF) const {
+  
+  // TODO : 优化SP指针的位置， 目前没有优化
+  return 0;
+}
+
+void ANGRYZFrameLowering::determineCalleeSaves(MachineFunction &MF,
+                                              BitVector &SavedRegs,
+                                              RegScavenger *RS) const {
+  
+  TargetFrameLowering::determineCalleeSaves(MF, SavedRegs, RS);
+  if (hasFP(MF)) {
+    SavedRegs.set(ANGRYZ::H1);
+    SavedRegs.set(ANGRYZ::H8);
+  }
+  
+  // TODO : 
 }
 

@@ -37,8 +37,29 @@ ANGRYZRegisterInfo::ANGRYZRegisterInfo(unsigned HwMode)
 
 }
 
+const uint32_t *ANGRYZRegisterInfo::getCallPreservedMask(const MachineFunction &MF,
+                                      CallingConv::ID CC) const {
+    auto &Subtarget = MF.getSubtarget<ANGRYZSubtarget>();
+
+  if (CC == CallingConv::GHC)
+    return CSR_NoRegs_RegMask;
+  switch (Subtarget.getTargetABI()) {
+  default:
+    llvm_unreachable("Unrecognized ABI");
+  case ANGRYZABI::ABI_ILP32:
+  case ANGRYZABI::ABI_LP64:
+    return CSR_ILP32_LP64_RegMask;
+  case ANGRYZABI::ABI_ILP32F:
+  case ANGRYZABI::ABI_LP64F:
+    return CSR_ILP32_LP64_RegMask;
+  case ANGRYZABI::ABI_ILP32D:
+  case ANGRYZABI::ABI_LP64D:
+    return CSR_ILP32_LP64_RegMask;
+  }
+}
+
 const MCPhysReg *ANGRYZRegisterInfo::getCalleeSavedRegs(const MachineFunction *MF) const {
-    return CC_Save_SaveList;
+    return CSR_ILP32_LP64_SaveList;
 }
 
 BitVector ANGRYZRegisterInfo::getReservedRegs(const MachineFunction &MF) const {
@@ -61,10 +82,10 @@ BitVector ANGRYZRegisterInfo::getReservedRegs(const MachineFunction &MF) const {
   return Reserved;
 }
 
-bool ANGRYZRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator MBBI, int SPAdj,
-                        unsigned FIOperandNum,
-                        RegScavenger *RS) const {   //TODO eliminateFrameIndex
-    //todo
+bool ANGRYZRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator MBBI, 
+                                            int SPAdj,unsigned FIOperandNum,
+                                            RegScavenger *RS) const {   // TODO : eliminateFrameIndex
+    
     MachineInstr &MI = *MBBI;
     MachineFunction &MF = *MBBI->getParent()->getParent();
     MachineRegisterInfo &RI = MF.getRegInfo();

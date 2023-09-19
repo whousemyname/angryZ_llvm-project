@@ -2,6 +2,7 @@
 #include "ANGRYZSubtarget.h"
 #include "ANGRYZ.h"
 #include "ANGRYZTargetMachine.h" 
+#include "MCTargetDesc/ANGRYZBaseInfo.h"
 #include "llvm/MC/TargetRegistry.h"
 #include "llvm/Support/ErrorHandling.h"
 using namespace llvm;
@@ -33,17 +34,19 @@ ANGRYZSubtarget &
 ANGRYZSubtarget::initializeSubtargetDependencies(const Triple &TT, StringRef CPU,
                                                 StringRef TuneCPU, StringRef FS,
                                                 StringRef ABIName) {
-    // Determine default and user-specified characteristics
-    /*
-        ABI的计算
-        其他一些属性的计算
-        调用ParseSubtargetFeatures()方法
-        像reginfo instrinfo framelowering targetlowering等的信息在构造中进行初始化
+  // Determine default and user-specified characteristics
+  /*
+      ABI的计算
+      其他一些属性的计算
+      调用ParseSubtargetFeatures()方法
+      像reginfo instrinfo framelowering targetlowering等的信息在构造中进行初始化
 
-    */
-    if (CPU.empty()) {
-        CPU = "angryz";
-    }
-    ParseSubtargetFeatures(CPU, CPU, FS);
-    return *this;
+  */
+  if (CPU.empty()) {
+      CPU = "angryz";
+  }
+  ParseSubtargetFeatures(CPU, CPU, FS);
+  TargetABI = ANGRYZABI::ABI_ILP32;
+  //TargetABI = ANGRYZABI::computeTargetABI(TT, getFeatureBits(), ABIName);
+  return *this;
 }

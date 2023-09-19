@@ -15,11 +15,24 @@ class ANGRYZSubtarget;
 
 class ANGRYZInstrInfo : public ANGRYZGenInstrInfo {
 protected:
-    const ANGRYZSubtarget &STI;
+  const ANGRYZSubtarget &STI;
 public:
-    explicit ANGRYZInstrInfo(ANGRYZSubtarget &STI);
-};
+  explicit ANGRYZInstrInfo(ANGRYZSubtarget &STI);
 
-}   //namespace llvm
+  void storeRegToStackSlot(MachineBasicBlock &MBB,
+                        MachineBasicBlock::iterator MBBI, Register SrcReg,
+                        bool IsKill, int FrameIndex,
+                        const TargetRegisterClass *RC,
+                        const TargetRegisterInfo *TRI,
+                        Register VReg) const override;
+
+  void loadRegFromStackSlot(MachineBasicBlock &MBB,
+                            MachineBasicBlock::iterator MBBI, Register DstReg,
+                            int FrameIndex, const TargetRegisterClass *RC,
+                            const TargetRegisterInfo *TRI,
+                            Register VReg) const override;
+};  // end class ANGRYZInstrInfo 
+
+}   //end namespace llvm
 
 #endif

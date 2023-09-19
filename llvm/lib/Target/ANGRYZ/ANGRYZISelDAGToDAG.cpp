@@ -33,6 +33,7 @@ void ANGRYZDAGToDAGISel::Select(SDNode *Node) {
                 ReplaceNode(Node, Result);
                 return ;
             }
+            return ;
         }
         default :
             break;

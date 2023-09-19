@@ -1,4 +1,5 @@
 #include "ANGRYZSubtarget.h"
+#include "MCTargetDesc/ANGRYZMCExpr.h"
 #include "MCTargetDesc/ANGRYZMCTargetDesc.h"
 #include "TargetInfo/ANGRYZTargetInfo.h"
 #include "llvm/ADT/StringRef.h"
@@ -6,9 +7,11 @@
 #include "llvm/CodeGen/MachineFunction.h"
 #include "llvm/CodeGen/MachineInstr.h"
 #include "llvm/CodeGen/MachineOperand.h"
+#include "llvm/MC/MCContext.h"
 #include "llvm/MC/MCInst.h"
 #include "llvm/MC/MCStreamer.h"
 #include "llvm/MC/TargetRegistry.h"
+#include "llvm/Support/ErrorHandling.h"
 #include "llvm/Target/TargetMachine.h"
 #include <memory>
 #include <utility>
@@ -54,11 +57,36 @@ private:
 
 }   // namespace
 
+static MCOperand lowerSymbolOperand(const MachineOperand &MO, MCSymbol *Sym,
+                                    const AsmPrinter &AP) {
+  MCContext &Ctx = AP.OutContext;
+  ANGRYZMCExpr::VariantKind Kind;
+
+  switch (MO.getTargetFlags()) {
+    default :
+      llvm_unreachable("Unknown target flag on GV operand");
+    case ANGRYZII::MO_None:
+      Kind = ANGRYZMCExpr::VK_ANGRYZ_None;
+    break;
+  }
+
+  const MCExpr *ME =
+      MCSymbolRefExpr::create(Sym, MCSymbolRefExpr::VK_None, Ctx);
+
+  if (!MO.isJTI() && !MO.isMBB() && MO.getOffset())
+    ME = MCBinaryExpr::createAdd(
+        ME, MCConstantExpr::create(MO.getOffset(), Ctx), Ctx);
+
+  if (Kind != ANGRYZMCExpr::VK_ANGRYZ_None)
+    ME = ANGRYZMCExpr::create(ME, Kind, Ctx);
+  return MCOperand::createExpr(ME);
+}
+
 bool ANGRYZAsmPrinter::runOnMachineFunction(MachineFunction &MF) {
     Subtarget = &MF.getSubtarget<ANGRYZSubtarget>();
 /*
     todo
-    RISCVTargetStreamer
+    ANGRYZTargetStreamer
 */
     SetupMachineFunction(MF);
     emitFunctionBody();
@@ -102,6 +130,10 @@ bool ANGRYZAsmPrinter::lowerOperand(const MachineOperand &MO,
   case MachineOperand::MO_Immediate:
     MCOp = MCOperand::createImm(MO.getImm());
     break;
+  case MachineOperand::MO_GlobalAddress:
+    MCOp = lowerSymbolOperand(MO, getSymbolPreferLocal(*MO.getGlobal()), *this);
+    break;
+
     /*lowerSymbolOperand没有实现
   case MachineOperand::MO_MachineBasicBlock:
     MCOp = lowerSymbolOperand(MO, MO.getMBB()->getSymbol(), *this);

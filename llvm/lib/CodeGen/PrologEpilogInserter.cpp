@@ -278,7 +278,7 @@ bool PEI::runOnMachineFunction(MachineFunction &MF) {
         TRI->requiresFrameIndexReplacementScavenging(MF);
 
     if (TRI->eliminateFrameIndicesBackwards())
-      replaceFrameIndicesBackward(MF);
+      replaceFrameIndicesBackward(MF);    // debug_b
     else
       replaceFrameIndices(MF);
   }
@@ -453,7 +453,7 @@ static void assignCalleeSavedSpillSlots(MachineFunction &F,
   std::vector<CalleeSavedInfo> CSI;
   for (unsigned i = 0; CSRegs[i]; ++i) {
     unsigned Reg = CSRegs[i];
-    if (SavedRegs.test(Reg)) {
+    if (SavedRegs.test(Reg)) {      // TODO : 为什么angryz的test不通过？ 原因是 FrameLowering有个hook没有实现：determineCalleeSaves
       bool SavedSuper = false;
       for (const MCPhysReg &SuperReg : RegInfo->superregs(Reg)) {
         // Some backends set all aliases for some registers as saved, such as
@@ -680,7 +680,7 @@ void PEI::spillCalleeSavedRegs(MachineFunction &MF) {
   TFI->determineCalleeSaves(MF, SavedRegs, RS);
 
   // Assign stack slots for any callee-saved registers that must be spilled.
-  assignCalleeSavedSpillSlots(MF, SavedRegs, MinCSFrameIndex, MaxCSFrameIndex);
+  assignCalleeSavedSpillSlots(MF, SavedRegs, MinCSFrameIndex, MaxCSFrameIndex);   // debug_b
 
   // Add the code to save and restore the callee saved registers.
   if (!F.hasFnAttribute(Attribute::Naked)) {
@@ -1365,7 +1365,7 @@ void PEI::replaceFrameIndicesBackward(MachineFunction &MF) {
         SPAdj = -SPAdj;
     }
 
-    replaceFrameIndicesBackward(&MBB, MF, SPAdj);
+    replaceFrameIndicesBackward(&MBB, MF, SPAdj);   // debug_b
 
     // We can't track the call frame size after call frame pseudos have been
     // eliminated. Set it to zero everywhere to keep MachineVerifier happy.
@@ -1508,7 +1508,7 @@ void PEI::replaceFrameIndicesBackward(MachineBasicBlock *BB,
         continue;
 
       // Eliminate this FrameIndex operand.
-      RemovedMI = TRI.eliminateFrameIndex(MI, SPAdj, Idx, LocalRS);   //debug_b
+      RemovedMI = TRI.eliminateFrameIndex(MI, SPAdj, Idx, LocalRS);   // debug_b
       if (RemovedMI)
         break;
     }
