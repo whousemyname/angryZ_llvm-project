@@ -479,6 +479,7 @@ bool SelectionDAGISel::runOnMachineFunction(MachineFunction &mf) {
     // This performs initialization so lowering for SplitCSR will be correct.
     TLI->initializeSplitCSR(EntryMBB);
 
+  // TOREAD 关键逻辑
   SelectAllBasicBlocks(Fn);       //debug_b
   if (FastISelFailed && EnableFastISelFallbackReport) {
     DiagnosticInfoISelFallback DiagFallback(Fn);
@@ -688,6 +689,9 @@ void SelectionDAGISel::SelectBasicBlock(BasicBlock::const_iterator Begin,
   // nodes for this block.
   for (BasicBlock::const_iterator I = Begin; I != End && !SDB->HasTailCall; ++I) {
     if (!ElidedArgCopyInstrs.count(&*I))
+      /*
+        TOREAD 关键处理逻辑   将IR 转换为DAG
+      */
       SDB->visit(*I);     //debug_b
   }
 
@@ -698,6 +702,9 @@ void SelectionDAGISel::SelectBasicBlock(BasicBlock::const_iterator Begin,
   SDB->clear();
 
   // Final step, emit the lowered DAG as machine code.
+  /*
+    TOREAD 关键处理逻辑 ： 对于DAG的Lowering, select, schedule, emit 
+  */
   CodeGenAndEmitDAG();
 }
 
@@ -1464,7 +1471,7 @@ void SelectionDAGISel::SelectAllBasicBlocks(const Function &Fn) {
   CurDAG->setFunctionLoweringInfo(FuncInfo.get());
 
   if (!FastIS) {
-    LowerArguments(Fn);     //debug_b
+    LowerArguments(Fn);     //debug_b   不是fastIS 首先lowerArguments
   } else {
     // See if fast isel can lower the arguments.
     FastIS->startNewBlock();
@@ -1699,7 +1706,10 @@ void SelectionDAGISel::SelectAllBasicBlocks(const Function &Fn) {
       // not handled by FastISel. If FastISel is not run, this is the entire
       // block.
       bool HadTailCall;
-      SelectBasicBlock(Begin, BI, HadTailCall);       //debug_b
+      /*
+        TOREAD 关键处理逻辑
+      */
+      SelectBasicBlock(Begin, BI, HadTailCall);       //  debug_b
 
       // But if FastISel was run, we already selected some of the block.
       // If we emitted a tail-call, we need to delete any previously emitted
